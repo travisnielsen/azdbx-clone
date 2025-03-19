@@ -15,7 +15,7 @@ First, ensure you have an environment baseline to work from:
 * [VS Code](https://code.visualstudio.com/) with the [HashiCorp Terraform Extension](https://marketplace.visualstudio.com/items?itemName=HashiCorp.terraform)
 * An Azure subscription with at least Contributor access
 
-Open the `ADX-CLONE` directory in VS Code and create a new file called **terraform.tfvars** under the `deployment` directory. Update the contents of the file as follows.
+Open the `azdbx-clone` directory in VS Code and create a new file called **terraform.tfvars** under the `deployment` directory. Update the contents of the file as follows.
 
 ```text
 subscription_id = "[your_subscription_id]"
