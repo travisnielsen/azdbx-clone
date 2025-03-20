@@ -12,6 +12,8 @@ data "databricks_node_type" "smallest" {
   depends_on = [azurerm_databricks_workspace.this]
 }
 
+// Databricks backed secret scope and sample secret
+
 resource "databricks_secret_scope" "this" {
   name = "demo-${data.databricks_current_user.me.alphanumeric}"
 }
@@ -27,12 +29,24 @@ resource "databricks_secret" "token" {
   key          = "token"
 }
 
+// Key Vault backed secret scope and sample secret
+
+resource "databricks_secret_scope" "kv" {
+  name = "akvdemo-${data.databricks_current_user.me.alphanumeric}"
+  keyvault_metadata {
+    dns_name = azurerm_key_vault.this.vault_uri
+    resource_id = azurerm_key_vault.this.id
+  }
+}
+
 resource "databricks_notebook" "this" {
   path     = "${data.databricks_current_user.me.home}/Terraform"
   language = "PYTHON"
   content_base64 = base64encode(<<-EOT
     token = dbutils.secrets.get('${databricks_secret_scope.this.name}', '${databricks_secret.token.key}')
-    print(f'This should be redacted: {token}')
+    print(f'Databricks backed secret. This should be redacted: {token}')
+    akvsecret = dbutils.secrets.get('${databricks_secret_scope.kv.name}', '${azurerm_key_vault_secret.databricks_secret_akv.name}')
+    print(f'Key Vault backed secret. This should be redacted: {akvsecret}')
     EOT
   )
 }
@@ -93,3 +107,5 @@ resource "databricks_instance_pool" "smallest_nodes" {
 
   idle_instance_autotermination_minutes = 20
 }
+
+

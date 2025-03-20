@@ -93,3 +93,30 @@ resource "azurerm_databricks_workspace" "this" {
     private_subnet_network_security_group_association_id = azurerm_subnet_network_security_group_association.private.id
   }
 }
+
+// Key Vault with defauilt access policy for the current user
+// https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/key_vault
+// https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/key_vault_access_policy
+
+resource "azurerm_key_vault" "this" {
+  name                     = "${local.prefix}-kv"
+  location                 = azurerm_resource_group.this.location
+  resource_group_name      = azurerm_resource_group.this.name
+  tenant_id                = data.azurerm_client_config.current.tenant_id
+  sku_name                 = "standard"
+  enabled_for_disk_encryption = true
+}
+
+resource "azurerm_key_vault_access_policy" "this" {
+  key_vault_id       = azurerm_key_vault.this.id
+  tenant_id          = data.azurerm_client_config.current.tenant_id
+  object_id          = data.azurerm_client_config.current.object_id
+  secret_permissions = ["Delete", "Get", "List", "Set"]
+}
+
+resource "azurerm_key_vault_secret" "databricks_secret_akv" {
+    name         = "databricks-secret-${data.azurerm_client_config.current.tenant_id}"
+    value        = "test secret from AKV"
+    key_vault_id = azurerm_key_vault.this.id
+    depends_on = [ azurerm_key_vault_access_policy.this ]
+}
