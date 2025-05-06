@@ -38,3 +38,9 @@ terraform.rc
 
 # Ignore Terraform provider file
 terraform-provider-*
+
+# Export and import folders
+export-*
+import-*
+
+# Ignore any other files that are not relevant to the Terraform configuration

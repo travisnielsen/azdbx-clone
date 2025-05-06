@@ -1,5 +1,5 @@
 locals {
-  prefix = "databricksdemo${random_string.naming.result}"
+  prefix = "dbxtarget${random_string.naming.result}"
   tags = {
     Environment = "Demo"
     Owner       = lookup(data.external.me.result, "name")
