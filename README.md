@@ -44,9 +44,9 @@ Repeat this process by running the above commands from the `target` directory.
 
 > NOTE: Once you are finished with the environment, you can run the `terraform destroy` command to remove it.
 
-## Migration Steps
+## Export
 
-### Set Environment Variables
+### Set environment variables
 
 Follow these [instructions to createa a Personal Access Token](https://docs.databricks.com/aws/en/dev-tools/auth/pat#databricks-personal-access-tokens-for-workspace-users) (PAT) in the source workspace. Next, set the following environment variables:
 
@@ -63,6 +63,63 @@ Next navigate to the `source` director and locate the file named `terraform-prov
 ./terraform-provider-databricks_v1.70.0 exporter -directory=export-workspace -export-secrets -mounts -skip-interactive
 ```
 
-### Import objects into the target workspace
+## Import
 
-COMING SOON
+### Prepare files
+
+Before performing the import to the new workspace, some files within the `export-` directory must first be updated. Start by adding the following to `vars.tf`:
+
+```terraform
+variable "string_value_demo_admin_token_484725b503" {
+  description = ""
+}
+
+variable "subscription_id" {
+  type        = string
+  description = "Azure Subscription ID to deploy the workspace into"
+}
+
+variable "workspace_host_url" {
+  type        = string
+  description = "Databricks workspace URL"
+}
+```
+
+Replace the contents of `databricks.tf` with the following:
+
+```terraform
+terraform {
+  required_providers {
+    azurerm = "~> 4.0"
+    databricks = {
+      source  = "databricks/databricks"
+      version = "1.70.0"
+    }
+  }
+}
+
+provider "azurerm" {
+  features {}
+  subscription_id = var.subscription_id
+}
+provider "databricks" {
+    host = var.workspace_host_url
+}
+```
+
+Update the `terraform.tfvars` file with the following variables:
+
+```bash
+subscription_id = "[target_subscription_id]"
+workspace_host_url = "[target_workspace_url]"
+```
+
+### Apply configuration to the target workspace
+
+Standard Terraform commands are used for this step. In a terminal, switch to the export directory and run the following:
+
+```bash
+terraform init
+terraform plan
+terraform apply
+```
