@@ -114,6 +114,8 @@ subscription_id = "[target_subscription_id]"
 workspace_host_url = "[target_workspace_url]"
 ```
 
+Finally, delete the following files: `sql-endpoints.tf`, `access.tf`. This may change in future iterations of this reference process.
+
 ### Apply configuration to the target workspace
 
 Standard Terraform commands are used for this step. In a terminal, switch to the export directory and run the following:
