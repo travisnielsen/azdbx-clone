@@ -11,3 +11,9 @@ resource "azurerm_resource_group" "this" {
   location = var.region
   tags     = local.tags
 }
+
+resource "azurerm_resource_group" "shared_rg" {
+  name     = "${local.prefix}-shared-rg"
+  location = var.region
+  tags     = local.tags
+}
